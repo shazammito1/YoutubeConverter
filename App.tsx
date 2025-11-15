@@ -14,6 +14,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [videoInfo, setVideoInfo] = useState<VideoInfo | null>(null);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
+  const [showMp3Options, setShowMp3Options] = useState<boolean>(false);
 
   const isValidYoutubeUrl = (urlToTest: string): boolean => {
     const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/)[\w-]{11}([?&].*)?$/;
@@ -33,6 +34,7 @@ const App: React.FC = () => {
     setError(null);
     setVideoInfo(null);
     setShareStatus(null);
+    setShowMp3Options(false);
     setIsLoading(true);
 
     // Simulate API call for conversion
@@ -47,8 +49,12 @@ const App: React.FC = () => {
     }, 2500);
   }, [url, isLoading]);
   
-  const handleDownload = (type: 'MP3' | 'MP4') => {
-      alert(`This is a demo. In a real app, the ${type} file would start downloading.`);
+  const handleDownload = (type: 'MP3' | 'MP4', quality?: string) => {
+      const qualityText = quality ? ` (${quality})` : '';
+      alert(`This is a demo. In a real app, the ${type}${qualityText} file would start downloading.`);
+      if (type === 'MP3') {
+        setShowMp3Options(false); // Reset the view after selection
+      }
   }
   
   const handleShare = async () => {
@@ -85,6 +91,7 @@ const App: React.FC = () => {
     setVideoInfo(null);
     setIsLoading(false);
     setShareStatus(null);
+    setShowMp3Options(false);
   };
 
   return (
@@ -138,46 +145,66 @@ const App: React.FC = () => {
               </form>
             ) : (
               <div className="animate-fade-in">
-                <div className="flex flex-col md:flex-row gap-6">
-                    <img src={videoInfo.thumbnail} alt={videoInfo.title} className="w-full md:w-1/2 h-auto object-cover rounded-lg shadow-lg"/>
-                    <div className="flex flex-col justify-between w-full">
-                        <div>
-                            <p className="text-sm text-gray-400">{videoInfo.author}</p>
-                            <h2 className="text-xl font-semibold mt-1 mb-2">{videoInfo.title}</h2>
-                            <p className="text-sm text-gray-400">Duration: {videoInfo.duration}</p>
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                            <button onClick={() => handleDownload('MP3')} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-transform transform hover:scale-105">
-                                <MusicNoteIcon className="w-5 h-5" />
-                                Download MP3
-                            </button>
-                            <button onClick={() => handleDownload('MP4')} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-transform transform hover:scale-105">
-                                <VideoCameraIcon className="w-5 h-5" />
-                                Download MP4
-                            </button>
-                        </div>
-                        <div className="mt-3">
-                            <button
-                                onClick={handleShare}
-                                disabled={!!shareStatus}
-                                className={`w-full font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all transform ${
-                                    !!shareStatus
-                                    ? 'bg-green-600 text-white cursor-default'
-                                    : 'bg-purple-600 hover:bg-purple-700 text-white hover:scale-105'
-                                }`}
-                                >
-                                {shareStatus ? (
-                                    shareStatus
-                                ) : (
-                                    <>
-                                        <ShareIcon className="w-5 h-5" />
-                                        Share
-                                    </>
-                                )}
-                            </button>
-                        </div>
+                <div className="flex flex-col md:flex-row gap-6 mb-6">
+                    <img src={videoInfo.thumbnail} alt={videoInfo.title} className="w-full md:w-1/3 h-auto object-cover rounded-lg shadow-lg"/>
+                    <div className="flex flex-col justify-center w-full">
+                        <p className="text-sm text-gray-400">{videoInfo.author}</p>
+                        <h2 className="text-xl font-semibold mt-1 mb-2">{videoInfo.title}</h2>
+                        <p className="text-sm text-gray-400">Duration: {videoInfo.duration}</p>
                     </div>
                 </div>
+
+                <div className="space-y-4">
+                  {/* MP3 Download Section */}
+                  <div className="bg-gray-700/30 p-4 rounded-lg">
+                      <h3 className="font-semibold text-lg mb-3 flex items-center gap-2 text-gray-200">
+                          <MusicNoteIcon className="w-5 h-5" /> Audio Download (MP3)
+                      </h3>
+                      {!showMp3Options ? (
+                          <button onClick={() => setShowMp3Options(true)} className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-transform transform hover:scale-105">
+                              Select Audio Quality
+                          </button>
+                      ) : (
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                              <button onClick={() => handleDownload('MP3', '128kbps')} className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-transform transform hover:scale-105">Low <span className="block text-xs text-green-200 opacity-80">128kbps</span></button>
+                              <button onClick={() => handleDownload('MP3', '192kbps')} className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-transform transform hover:scale-105">Medium <span className="block text-xs text-green-200 opacity-80">192kbps</span></button>
+                              <button onClick={() => handleDownload('MP3', '320kbps')} className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-transform transform hover:scale-105">High <span className="block text-xs text-green-200 opacity-80">320kbps</span></button>
+                          </div>
+                      )}
+                  </div>
+                  
+                  {/* MP4 Download Section */}
+                  <div className="bg-gray-700/30 p-4 rounded-lg">
+                      <h3 className="font-semibold text-lg mb-3 flex items-center gap-2 text-gray-200">
+                          <VideoCameraIcon className="w-5 h-5" /> Video Download (MP4)
+                      </h3>
+                      <button onClick={() => handleDownload('MP4')} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-transform transform hover:scale-105">
+                          Download Video
+                      </button>
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                    <button
+                        onClick={handleShare}
+                        disabled={!!shareStatus}
+                        className={`w-full font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all transform ${
+                            !!shareStatus
+                            ? 'bg-green-600 text-white cursor-default'
+                            : 'bg-purple-600 hover:bg-purple-700 text-white hover:scale-105'
+                        }`}
+                        >
+                        {shareStatus ? (
+                            shareStatus
+                        ) : (
+                            <>
+                                <ShareIcon className="w-5 h-5" />
+                                Share
+                            </>
+                        )}
+                    </button>
+                </div>
+                
                 <button
                   onClick={resetState}
                   className="w-full mt-6 text-gray-400 hover:text-white transition-colors duration-200"
