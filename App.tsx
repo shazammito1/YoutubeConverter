@@ -16,7 +16,7 @@ const App: React.FC = () => {
   const [shareStatus, setShareStatus] = useState<string | null>(null);
 
   const isValidYoutubeUrl = (urlToTest: string): boolean => {
-    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/)[\w-]{11}(&.*)?$/;
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/)[\w-]{11}([?&].*)?$/;
     return youtubeRegex.test(urlToTest);
   };
 
