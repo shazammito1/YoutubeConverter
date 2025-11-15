@@ -1,0 +1,5 @@
+{
+  "name": "YoutubeConverter",
+  "description": "A modern web application to convert YouTube videos to MP3 or download them as MP4. This is a UI demonstration and does not perform actual conversions from YouTube due to technical and legal restrictions.",
+  "requestFramePermissions": []
+}
